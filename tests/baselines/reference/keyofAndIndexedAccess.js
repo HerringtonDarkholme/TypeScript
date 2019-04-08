@@ -484,10 +484,10 @@ function onChangeGenericFunction<T>(handler: Handler<T & {preset: number}>) {
 function updateIds<T extends Record<K, string>, K extends string>(
     obj: T,
     idFields: K[],
-    idMapping: { [oldId: string]: string }
+    idMapping: Partial<Record<T[K], T[K]>>
 ): Record<K, string> {
     for (const idField of idFields) {
-        const newId = idMapping[obj[idField]];
+        const newId: T[K] | undefined = idMapping[obj[idField]];
         if (newId) {
             obj[idField] = newId;
         }
@@ -1255,13 +1255,13 @@ declare type Thing = {
 declare function f1(thing: Thing): void;
 declare const assignTo2: <T, K1 extends keyof T, K2 extends keyof T[K1]>(object: T, key1: K1, key2: K2) => (value: T[K1][K2]) => T[K1][K2];
 declare function one<T>(handler: (t: T) => void): T;
-declare var empty: {};
+declare var empty: unknown;
 declare type Handlers<T> = {
     [K in keyof T]: (t: T[K]) => void;
 };
 declare function on<T>(handlerHash: Handlers<T>): T;
 declare var hashOfEmpty1: {
-    test: {};
+    test: unknown;
 };
 declare var hashOfEmpty2: {
     test: boolean;
@@ -1276,7 +1276,7 @@ declare class Component1<Data, Computed> {
 }
 declare let c1: Component1<{
     hello: string;
-}, {}>;
+}, unknown>;
 interface Options2<Data, Computed> {
     data?: Data;
     computed?: Computed;
@@ -1312,9 +1312,7 @@ declare type Handler<T> = {
 declare function onChangeGenericFunction<T>(handler: Handler<T & {
     preset: number;
 }>): void;
-declare function updateIds<T extends Record<K, string>, K extends string>(obj: T, idFields: K[], idMapping: {
-    [oldId: string]: string;
-}): Record<K, string>;
+declare function updateIds<T extends Record<K, string>, K extends string>(obj: T, idFields: K[], idMapping: Partial<Record<T[K], T[K]>>): Record<K, string>;
 declare function updateIds2<T extends {
     [x: string]: string;
 }, K extends keyof T>(obj: T, key: K, stringMap: {
