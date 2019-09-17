@@ -1,3 +1,6 @@
+//// [/src/first/bin/first-output.d.ts] file written with same contents
+//// [/src/first/bin/first-output.d.ts.map] file written with same contents
+//// [/src/first/bin/first-output.d.ts.map.baseline.txt] file written with same contents
 //// [/src/first/bin/first-output.js]
 var s = "Hello, world";
 console.log(s);
@@ -186,11 +189,11 @@ sourceFile:../first_part3.ts
 //// [/src/first/bin/first-output.tsbuildinfo]
 {
   "bundle": {
-    "commonSourceDirectory": "/src/first/",
+    "commonSourceDirectory": "..",
     "sourceFiles": [
-      "/src/first/first_PART1.ts",
-      "/src/first/first_part2.ts",
-      "/src/first/first_part3.ts"
+      "../first_PART1.ts",
+      "../first_part2.ts",
+      "../first_part3.ts"
     ],
     "js": {
       "sections": [
@@ -257,6 +260,9 @@ interface NoJsForHereEither {
 console.log(s);
 console.log(s);
 
+//// [/src/third/thirdjs/output/third-output.d.ts] file written with same contents
+//// [/src/third/thirdjs/output/third-output.d.ts.map] file written with same contents
+//// [/src/third/thirdjs/output/third-output.d.ts.map.baseline.txt] file written with same contents
 //// [/src/third/thirdjs/output/third-output.js]
 var s = "Hello, world";
 console.log(s);

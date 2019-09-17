@@ -5,12 +5,10 @@ namespace ts {
         getChildAt(index: number, sourceFile?: SourceFile): Node;
         getChildren(sourceFile?: SourceFile): Node[];
         /* @internal */
-        // tslint:disable-next-line unified-signatures
-        getChildren(sourceFile?: SourceFileLike): Node[];
+        getChildren(sourceFile?: SourceFileLike): Node[]; // eslint-disable-line @typescript-eslint/unified-signatures
         getStart(sourceFile?: SourceFile, includeJsDocComment?: boolean): number;
         /* @internal */
-        // tslint:disable-next-line unified-signatures
-        getStart(sourceFile?: SourceFileLike, includeJsDocComment?: boolean): number;
+        getStart(sourceFile?: SourceFileLike, includeJsDocComment?: boolean): number; // eslint-disable-line @typescript-eslint/unified-signatures
         getFullStart(): number;
         getEnd(): number;
         getWidth(sourceFile?: SourceFileLike): number;
@@ -44,8 +42,8 @@ namespace ts {
         getProperties(): Symbol[];
         getProperty(propertyName: string): Symbol | undefined;
         getApparentProperties(): Symbol[];
-        getCallSignatures(): ReadonlyArray<Signature>;
-        getConstructSignatures(): ReadonlyArray<Signature>;
+        getCallSignatures(): readonly Signature[];
+        getConstructSignatures(): readonly Signature[];
         getStringIndexType(): Type | undefined;
         getNumberIndexType(): Type | undefined;
         getBaseTypes(): BaseType[] | undefined;
@@ -78,11 +76,11 @@ namespace ts {
         /* @internal */ scriptSnapshot: IScriptSnapshot | undefined;
         /* @internal */ nameTable: UnderscoreEscapedMap<number> | undefined;
 
-        /* @internal */ getNamedDeclarations(): Map<ReadonlyArray<Declaration>>;
+        /* @internal */ getNamedDeclarations(): Map<readonly Declaration[]>;
 
         getLineAndCharacterOfPosition(pos: number): LineAndCharacter;
         getLineEndOfPosition(pos: number): number;
-        getLineStarts(): ReadonlyArray<number>;
+        getLineStarts(): readonly number[];
         getPositionOfLineAndCharacter(line: number, character: number): number;
         update(newText: string, textChangeRange: TextChangeRange): SourceFile;
 
@@ -102,7 +100,7 @@ namespace ts {
      * snapshot is observably immutable. i.e. the same calls with the same parameters will return
      * the same values.
      */
-    // tslint:disable-next-line interface-name
+    // eslint-disable-next-line @typescript-eslint/interface-name-prefix
     export interface IScriptSnapshot {
         /** Gets a portion of the script snapshot specified by [start, end). */
         getText(start: number, end: number): string;
@@ -180,7 +178,7 @@ namespace ts {
         getScriptKind?(fileName: string): ScriptKind;
         getScriptVersion(fileName: string): string;
         getScriptSnapshot(fileName: string): IScriptSnapshot | undefined;
-        getProjectReferences?(): ReadonlyArray<ProjectReference> | undefined;
+        getProjectReferences?(): readonly ProjectReference[] | undefined;
         getLocalizedDiagnosticMessages?(): any;
         getCancellationToken?(): HostCancellationToken;
         getCurrentDirectory(): string;
@@ -194,7 +192,7 @@ namespace ts {
          * LS host can optionally implement these methods to support completions for module specifiers.
          * Without these methods, only completions for ambient modules will be provided.
          */
-        readDirectory?(path: string, extensions?: ReadonlyArray<string>, exclude?: ReadonlyArray<string>, include?: ReadonlyArray<string>, depth?: number): string[];
+        readDirectory?(path: string, extensions?: readonly string[], exclude?: readonly string[], include?: readonly string[], depth?: number): string[];
         readFile?(path: string, encoding?: string): string | undefined;
         realpath?(path: string): string;
         fileExists?(path: string): boolean;
@@ -211,9 +209,9 @@ namespace ts {
          *
          * If this is implemented, `getResolvedModuleWithFailedLookupLocationsFromCache` should be too.
          */
-        resolveModuleNames?(moduleNames: string[], containingFile: string, reusedNames?: string[], redirectedReference?: ResolvedProjectReference): (ResolvedModule | undefined)[];
+        resolveModuleNames?(moduleNames: string[], containingFile: string, reusedNames: string[] | undefined, redirectedReference: ResolvedProjectReference | undefined, options: CompilerOptions): (ResolvedModule | undefined)[];
         getResolvedModuleWithFailedLookupLocationsFromCache?(modulename: string, containingFile: string): ResolvedModuleWithFailedLookupLocations | undefined;
-        resolveTypeReferenceDirectives?(typeDirectiveNames: string[], containingFile: string, redirectedReference?: ResolvedProjectReference): (ResolvedTypeReferenceDirective | undefined)[];
+        resolveTypeReferenceDirectives?(typeDirectiveNames: string[], containingFile: string, redirectedReference: ResolvedProjectReference | undefined, options: CompilerOptions): (ResolvedTypeReferenceDirective | undefined)[];
         /* @internal */ hasInvalidatedResolution?: HasInvalidatedResolution;
         /* @internal */ hasChangedAutomaticTypeDirectiveNames?: boolean;
 
@@ -230,7 +228,6 @@ namespace ts {
 
         isKnownTypesPackageName?(name: string): boolean;
         installPackage?(options: InstallPackageOptions): Promise<ApplyCodeActionCommandResult>;
-        /* @internal */ inspectValue?(options: InspectValueOptions): Promise<ValueInfo>;
         writeFile?(fileName: string, content: string): void;
 
         /* @internal */
@@ -295,19 +292,21 @@ namespace ts {
         getSignatureHelpItems(fileName: string, position: number, options: SignatureHelpItemsOptions | undefined): SignatureHelpItems | undefined;
 
         getRenameInfo(fileName: string, position: number, options?: RenameInfoOptions): RenameInfo;
-        findRenameLocations(fileName: string, position: number, findInStrings: boolean, findInComments: boolean, providePrefixAndSuffixTextForRename?: boolean): ReadonlyArray<RenameLocation> | undefined;
+        findRenameLocations(fileName: string, position: number, findInStrings: boolean, findInComments: boolean, providePrefixAndSuffixTextForRename?: boolean): readonly RenameLocation[] | undefined;
 
-        getDefinitionAtPosition(fileName: string, position: number): ReadonlyArray<DefinitionInfo> | undefined;
+        getSmartSelectionRange(fileName: string, position: number): SelectionRange;
+
+        getDefinitionAtPosition(fileName: string, position: number): readonly DefinitionInfo[] | undefined;
         getDefinitionAndBoundSpan(fileName: string, position: number): DefinitionInfoAndBoundSpan | undefined;
-        getTypeDefinitionAtPosition(fileName: string, position: number): ReadonlyArray<DefinitionInfo> | undefined;
-        getImplementationAtPosition(fileName: string, position: number): ReadonlyArray<ImplementationLocation> | undefined;
+        getTypeDefinitionAtPosition(fileName: string, position: number): readonly DefinitionInfo[] | undefined;
+        getImplementationAtPosition(fileName: string, position: number): readonly ImplementationLocation[] | undefined;
 
         getReferencesAtPosition(fileName: string, position: number): ReferenceEntry[] | undefined;
         findReferences(fileName: string, position: number): ReferencedSymbol[] | undefined;
         getDocumentHighlights(fileName: string, position: number, filesToSearch: string[]): DocumentHighlights[] | undefined;
 
         /** @deprecated */
-        getOccurrencesAtPosition(fileName: string, position: number): ReadonlyArray<ReferenceEntry> | undefined;
+        getOccurrencesAtPosition(fileName: string, position: number): readonly ReferenceEntry[] | undefined;
 
         getNavigateToItems(searchValue: string, maxResultCount?: number, fileName?: string, excludeDtsFiles?: boolean): NavigateToItem[];
         getNavigationBarItems(fileName: string): NavigationBarItem[];
@@ -337,8 +336,9 @@ namespace ts {
         /** @internal */
         getSourceMapper(): SourceMapper;
 
-        getCodeFixesAtPosition(fileName: string, start: number, end: number, errorCodes: ReadonlyArray<number>, formatOptions: FormatCodeSettings, preferences: UserPreferences): ReadonlyArray<CodeFixAction>;
+        getCodeFixesAtPosition(fileName: string, start: number, end: number, errorCodes: readonly number[], formatOptions: FormatCodeSettings, preferences: UserPreferences): readonly CodeFixAction[];
         getCombinedCodeFix(scope: CombinedCodeFixScope, fixId: {}, formatOptions: FormatCodeSettings, preferences: UserPreferences): CombinedCodeActions;
+
         applyCodeActionCommand(action: CodeActionCommand, formatSettings?: FormatCodeSettings): Promise<ApplyCodeActionCommandResult>;
         applyCodeActionCommand(action: CodeActionCommand[], formatSettings?: FormatCodeSettings): Promise<ApplyCodeActionCommandResult[]>;
         applyCodeActionCommand(action: CodeActionCommand | CodeActionCommand[], formatSettings?: FormatCodeSettings): Promise<ApplyCodeActionCommandResult | ApplyCodeActionCommandResult[]>;
@@ -348,10 +348,11 @@ namespace ts {
         applyCodeActionCommand(fileName: string, action: CodeActionCommand[]): Promise<ApplyCodeActionCommandResult[]>;
         /** @deprecated `fileName` will be ignored */
         applyCodeActionCommand(fileName: string, action: CodeActionCommand | CodeActionCommand[]): Promise<ApplyCodeActionCommandResult | ApplyCodeActionCommandResult[]>;
+
         getApplicableRefactors(fileName: string, positionOrRange: number | TextRange, preferences: UserPreferences | undefined): ApplicableRefactorInfo[];
         getEditsForRefactor(fileName: string, formatOptions: FormatCodeSettings, positionOrRange: number | TextRange, refactorName: string, actionName: string, preferences: UserPreferences | undefined): RefactorEditInfo | undefined;
-        organizeImports(scope: OrganizeImportsScope, formatOptions: FormatCodeSettings, preferences: UserPreferences | undefined): ReadonlyArray<FileTextChanges>;
-        getEditsForFileRename(oldFilePath: string, newFilePath: string, formatOptions: FormatCodeSettings, preferences: UserPreferences | undefined): ReadonlyArray<FileTextChanges>;
+        organizeImports(scope: OrganizeImportsScope, formatOptions: FormatCodeSettings, preferences: UserPreferences | undefined): readonly FileTextChanges[];
+        getEditsForFileRename(oldFilePath: string, newFilePath: string, formatOptions: FormatCodeSettings, preferences: UserPreferences | undefined): readonly FileTextChanges[];
 
         getEmitOutput(fileName: string, emitOnlyDtsFiles?: boolean): EmitOutput;
 
@@ -528,28 +529,18 @@ namespace ts {
     }
 
     export interface CombinedCodeActions {
-        changes: ReadonlyArray<FileTextChanges>;
-        commands?: ReadonlyArray<CodeActionCommand>;
+        changes: readonly FileTextChanges[];
+        commands?: readonly CodeActionCommand[];
     }
 
     // Publicly, this type is just `{}`. Internally it is a union of all the actions we use.
     // See `commands?: {}[]` in protocol.ts
-    export type CodeActionCommand = InstallPackageAction | GenerateTypesAction;
+    export type CodeActionCommand = InstallPackageAction;
 
     export interface InstallPackageAction {
         /* @internal */ readonly type: "install package";
         /* @internal */ readonly file: string;
         /* @internal */ readonly packageName: string;
-    }
-
-    export interface GenerateTypesAction extends GenerateTypesOptions {
-        /* @internal */ readonly type: "generate types";
-    }
-
-    export interface GenerateTypesOptions {
-        readonly file: string; // File that was importing fileToGenerateTypesFor; used for formatting options.
-        readonly fileToGenerateTypesFor: string;
-        readonly outputFileName: string;
     }
 
     /**
@@ -622,6 +613,13 @@ namespace ts {
          */
         originalTextSpan?: TextSpan;
         originalFileName?: string;
+
+        /**
+         * If DocumentSpan.textSpan is the span for name of the declaration,
+         * then this is the span for relevant declaration
+         */
+        contextSpan?: TextSpan;
+        originalContextSpan?: TextSpan;
     }
 
     export interface RenameLocation extends DocumentSpan {
@@ -656,6 +654,7 @@ namespace ts {
         fileName?: string;
         isInString?: true;
         textSpan: TextSpan;
+        contextSpan?: TextSpan;
         kind: HighlightSpanKind;
     }
 
@@ -772,7 +771,7 @@ namespace ts {
     }
 
     export interface DefinitionInfoAndBoundSpan {
-        definitions?: ReadonlyArray<DefinitionInfo>;
+        definitions?: readonly DefinitionInfo[];
         textSpan: TextSpan;
     }
 
@@ -859,6 +858,11 @@ namespace ts {
         isOptional: boolean;
     }
 
+    export interface SelectionRange {
+        textSpan: TextSpan;
+        parent?: SelectionRange;
+    }
+
     /**
      * Represents a single signature to show in signature help.
      * The id is used for subsequent calls into the language service to ask questions about the
@@ -888,7 +892,7 @@ namespace ts {
     }
 
     export interface CompletionInfo {
-        /** Not true for all glboal completions. This will be true if the enclosing scope matches a few syntax kinds. See `isSnippetScope`. */
+        /** Not true for all global completions. This will be true if the enclosing scope matches a few syntax kinds. See `isSnippetScope`. */
         isGlobalCompletion: boolean;
         isMemberCompletion: boolean;
 

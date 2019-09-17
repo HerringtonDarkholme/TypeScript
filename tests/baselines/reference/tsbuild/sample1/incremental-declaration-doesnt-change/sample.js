@@ -1,3 +1,6 @@
+//// [/src/core/index.d.ts] file written with same contents
+//// [/src/core/index.d.ts.map] file written with same contents
+//// [/src/core/index.d.ts.map.baseline.txt] file written with same contents
 //// [/src/core/index.js]
 "use strict";
 exports.__esModule = true;
@@ -24,37 +27,21 @@ class someClass { }
 {
   "program": {
     "fileInfos": {
-      "/lib/lib.d.ts": {
-        "version": "/lib/lib.d.ts",
-        "signature": "/lib/lib.d.ts"
+      "../../lib/lib.d.ts": {
+        "version": "3858781397-/// <reference no-default-lib=\"true\"/>\ninterface Boolean {}\ninterface Function {}\ninterface CallableFunction {}\ninterface NewableFunction {}\ninterface IArguments {}\ninterface Number { toExponential: any; }\ninterface Object {}\ninterface RegExp {}\ninterface String { charAt: any; }\ninterface Array<T> { length: number; [n: number]: T; }\ninterface ReadonlyArray<T> {}\ndeclare const console: { log(msg: any): void; };",
+        "signature": "3858781397-/// <reference no-default-lib=\"true\"/>\ninterface Boolean {}\ninterface Function {}\ninterface CallableFunction {}\ninterface NewableFunction {}\ninterface IArguments {}\ninterface Number { toExponential: any; }\ninterface Object {}\ninterface RegExp {}\ninterface String { charAt: any; }\ninterface Array<T> { length: number; [n: number]: T; }\ninterface ReadonlyArray<T> {}\ndeclare const console: { log(msg: any): void; };"
       },
-      "/lib/lib.es5.d.ts": {
-        "version": "/lib/lib.es5.d.ts",
-        "signature": "/lib/lib.es5.d.ts"
+      "./anothermodule.ts": {
+        "version": "-2676574883-export const World = \"hello\";\r\n",
+        "signature": "7652028357-export declare const World = \"hello\";\r\n//# sourceMappingURL=anotherModule.d.ts.map"
       },
-      "/lib/lib.dom.d.ts": {
-        "version": "/lib/lib.dom.d.ts",
-        "signature": "/lib/lib.dom.d.ts"
+      "./index.ts": {
+        "version": "-16698397488-export const someString: string = \"HELLO WORLD\";\r\nexport function leftPad(s: string, n: number) { return s + n; }\r\nexport function multiply(a: number, b: number) { return a * b; }\r\n\nclass someClass { }",
+        "signature": "-13851440507-export declare const someString: string;\r\nexport declare function leftPad(s: string, n: number): string;\r\nexport declare function multiply(a: number, b: number): number;\r\n//# sourceMappingURL=index.d.ts.map"
       },
-      "/lib/lib.webworker.importscripts.d.ts": {
-        "version": "/lib/lib.webworker.importscripts.d.ts",
-        "signature": "/lib/lib.webworker.importscripts.d.ts"
-      },
-      "/lib/lib.scripthost.d.ts": {
-        "version": "/lib/lib.scripthost.d.ts",
-        "signature": "/lib/lib.scripthost.d.ts"
-      },
-      "/src/core/anothermodule.ts": {
-        "version": "-2676574883",
-        "signature": "25219880154"
-      },
-      "/src/core/index.ts": {
-        "version": "-16698397488",
-        "signature": "11051732871"
-      },
-      "/src/core/some_decl.d.ts": {
-        "version": "-9253692965",
-        "signature": "-9253692965"
+      "./some_decl.d.ts": {
+        "version": "-9253692965-declare const dts: any;\r\n",
+        "signature": "-9253692965-declare const dts: any;\r\n"
       }
     },
     "options": {
@@ -62,19 +49,15 @@ class someClass { }
       "declaration": true,
       "declarationMap": true,
       "skipDefaultLibCheck": true,
-      "configFilePath": "/src/core/tsconfig.json"
+      "configFilePath": "./tsconfig.json"
     },
     "referencedMap": {},
     "exportedModulesMap": {},
     "semanticDiagnosticsPerFile": [
-      "/lib/lib.d.ts",
-      "/lib/lib.dom.d.ts",
-      "/lib/lib.es5.d.ts",
-      "/lib/lib.scripthost.d.ts",
-      "/lib/lib.webworker.importscripts.d.ts",
-      "/src/core/anothermodule.ts",
-      "/src/core/index.ts",
-      "/src/core/some_decl.d.ts"
+      "../../lib/lib.d.ts",
+      "./anothermodule.ts",
+      "./index.ts",
+      "./some_decl.d.ts"
     ]
   },
   "version": "FakeTSVersion"

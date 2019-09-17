@@ -171,8 +171,7 @@ namespace ts.SymbolDisplay {
             }
 
             if (callExpressionLike) {
-                const candidateSignatures: Signature[] = [];
-                signature = typeChecker.getResolvedSignature(callExpressionLike, candidateSignatures)!; // TODO: GH#18217
+                signature = typeChecker.getResolvedSignature(callExpressionLike)!; // TODO: GH#18217
 
                 const useConstructSignatures = callExpressionLike.kind === SyntaxKind.NewExpression || (isCallExpression(callExpressionLike) && callExpressionLike.expression.kind === SyntaxKind.SuperKeyword);
 
@@ -604,7 +603,7 @@ namespace ts.SymbolDisplay {
             }
         }
 
-        function addSignatureDisplayParts(signature: Signature, allSignatures: ReadonlyArray<Signature>, flags = TypeFormatFlags.None) {
+        function addSignatureDisplayParts(signature: Signature, allSignatures: readonly Signature[], flags = TypeFormatFlags.None) {
             addRange(displayParts, signatureToDisplayParts(typeChecker, signature, enclosingDeclaration, flags | TypeFormatFlags.WriteTypeArgumentsOfSignature));
             if (allSignatures.length > 1) {
                 displayParts.push(spacePart());

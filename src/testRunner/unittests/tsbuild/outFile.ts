@@ -29,7 +29,7 @@ namespace ts {
             ]
         ];
         const relOutputFiles = outputFiles.map(v => v.map(relName)) as [OutputFile, OutputFile, OutputFile];
-        type Sources = [string, ReadonlyArray<string>];
+        type Sources = [string, readonly string[]];
         const enum source { config, ts }
         const enum part { one, two, three }
         const sources: [Sources, Sources, Sources] = [
@@ -55,19 +55,6 @@ namespace ts {
                 ]
             ]
         ];
-        const expectedMapFileNames = [
-            outputFiles[project.first][ext.jsmap],
-            outputFiles[project.first][ext.dtsmap],
-            outputFiles[project.second][ext.jsmap],
-            outputFiles[project.second][ext.dtsmap],
-            outputFiles[project.third][ext.jsmap],
-            outputFiles[project.third][ext.dtsmap]
-        ];
-        const expectedTsbuildInfoFileNames: ReadonlyArray<BuildInfoSectionBaselineFiles> = [
-            [outputFiles[project.first][ext.buildinfo], outputFiles[project.first][ext.js], outputFiles[project.first][ext.dts]],
-            [outputFiles[project.second][ext.buildinfo], outputFiles[project.second][ext.js], outputFiles[project.second][ext.dts]],
-            [outputFiles[project.third][ext.buildinfo], outputFiles[project.third][ext.js], outputFiles[project.third][ext.dts]]
-        ];
         const relSources = sources.map(([config, sources]) => [relName(config), sources.map(relName)]) as any as [Sources, Sources, Sources];
         const { time, tick } = getTime();
         let expectedOutputFiles = [
@@ -75,7 +62,7 @@ namespace ts {
             ...outputFiles[project.second],
             ...outputFiles[project.third]
         ];
-        let initialExpectedDiagnostics: ReadonlyArray<fakes.ExpectedDiagnostic> = [
+        let initialExpectedDiagnostics: readonly fakes.ExpectedDiagnostic[] = [
             getExpectedDiagnosticForProjectsInBuild(relSources[project.first][source.config], relSources[project.second][source.config], relSources[project.third][source.config]),
             [Diagnostics.Project_0_is_out_of_date_because_output_file_1_does_not_exist, relSources[project.first][source.config], relOutputFiles[project.first][ext.js]],
             [Diagnostics.Building_project_0, sources[project.first][source.config]],
@@ -102,7 +89,7 @@ namespace ts {
             ]
         );
 
-        let dtsChangedExpectedDiagnostics: ReadonlyArray<fakes.ExpectedDiagnostic> = [
+        let dtsChangedExpectedDiagnostics: readonly fakes.ExpectedDiagnostic[] = [
             getExpectedDiagnosticForProjectsInBuild(relSources[project.first][source.config], relSources[project.second][source.config], relSources[project.third][source.config]),
             [Diagnostics.Project_0_is_out_of_date_because_oldest_output_1_is_older_than_newest_input_2, relSources[project.first][source.config], relOutputFiles[project.first][ext.js], relSources[project.first][source.ts][part.one]],
             [Diagnostics.Building_project_0, sources[project.first][source.config]],
@@ -129,7 +116,7 @@ namespace ts {
             outputFiles[project.first][ext.dts], // dts changes so once read old content, and once new (to emit third)
         );
 
-        let dtsChangedExpectedDiagnosticsDependOrdered: ReadonlyArray<fakes.ExpectedDiagnostic> = [
+        let dtsChangedExpectedDiagnosticsDependOrdered: readonly fakes.ExpectedDiagnostic[] = [
             getExpectedDiagnosticForProjectsInBuild(relSources[project.first][source.config], relSources[project.second][source.config], relSources[project.third][source.config]),
             [Diagnostics.Project_0_is_out_of_date_because_oldest_output_1_is_older_than_newest_input_2, relSources[project.first][source.config], relOutputFiles[project.first][ext.js], relSources[project.first][source.ts][part.one]],
             [Diagnostics.Building_project_0, sources[project.first][source.config]],
@@ -140,7 +127,7 @@ namespace ts {
         ];
         let dtsChangedExpectedReadFilesDependOrdered: ReadonlyMap<number> = getDtsChangedReadFilesDependOrdered();
 
-        let dtsUnchangedExpectedDiagnostics: ReadonlyArray<fakes.ExpectedDiagnostic> = [
+        let dtsUnchangedExpectedDiagnostics: readonly fakes.ExpectedDiagnostic[] = [
             getExpectedDiagnosticForProjectsInBuild(relSources[project.first][source.config], relSources[project.second][source.config], relSources[project.third][source.config]),
             [Diagnostics.Project_0_is_out_of_date_because_oldest_output_1_is_older_than_newest_input_2, relSources[project.first][source.config], relOutputFiles[project.first][ext.js], relSources[project.first][source.ts][part.one]],
             [Diagnostics.Building_project_0, sources[project.first][source.config]],
@@ -166,7 +153,7 @@ namespace ts {
             ]
         );
 
-        let dtsUnchangedExpectedDiagnosticsDependOrdered: ReadonlyArray<fakes.ExpectedDiagnostic> = [
+        let dtsUnchangedExpectedDiagnosticsDependOrdered: readonly fakes.ExpectedDiagnostic[] = [
             getExpectedDiagnosticForProjectsInBuild(relSources[project.first][source.config], relSources[project.second][source.config], relSources[project.third][source.config]),
             [Diagnostics.Project_0_is_out_of_date_because_oldest_output_1_is_older_than_newest_input_2, relSources[project.first][source.config], relOutputFiles[project.first][ext.js], relSources[project.first][source.ts][part.one]],
             [Diagnostics.Building_project_0, sources[project.first][source.config]],
@@ -201,7 +188,7 @@ namespace ts {
             return ts.createSolutionBuilder(host, ["/src/third"], { dry: false, force: false, verbose: true, ...(baseOptions || {}) });
         }
 
-        function getInitialExpectedReadFiles(additionalSourceFiles?: ReadonlyArray<string>) {
+        function getInitialExpectedReadFiles(additionalSourceFiles?: readonly string[]) {
             if (!additionalSourceFiles) return initialExpectedReadFiles;
             const expectedReadFiles = cloneMap(initialExpectedReadFiles);
             for (const path of additionalSourceFiles) {
@@ -219,7 +206,7 @@ namespace ts {
             return value;
         }
 
-        function getDtsChangedReadFiles(dependOrdered?: boolean, additionalSourceFiles?: ReadonlyArray<string>) {
+        function getDtsChangedReadFiles(dependOrdered?: boolean, additionalSourceFiles?: readonly string[]) {
             const value = dependOrdered ? dtsChangedExpectedReadFilesDependOrdered : dtsChangedExpectedReadFiles;
             if (!additionalSourceFiles) return value;
             const expectedReadFiles = cloneMap(value);
@@ -238,7 +225,7 @@ namespace ts {
             return value;
         }
 
-        function getDtsUnchangedReadFiles(dependOrdered?: boolean, additionalSourceFiles?: ReadonlyArray<string>) {
+        function getDtsUnchangedReadFiles(dependOrdered?: boolean, additionalSourceFiles?: readonly string[]) {
             const value = dependOrdered ? dtsUnchangedExpectedReadFilesDependOrdered : dtsUnchangedExpectedReadFiles;
             if (!additionalSourceFiles || additionalSourceFiles.length !== 3) return value;
             const expectedReadFiles = cloneMap(value);
@@ -251,8 +238,7 @@ namespace ts {
             scenario: string;
             modifyFs: (fs: vfs.FileSystem) => void;
             modifyAgainFs?: (fs: vfs.FileSystem) => void;
-            additionalSourceFiles?: ReadonlyArray<string>;
-            expectedBuildInfoFilesForSectionBaselines?: ReadonlyArray<BuildInfoSectionBaselineFiles>;
+            additionalSourceFiles?: readonly string[];
             dependOrdered?: true;
             ignoreDtsChanged?: true;
             ignoreDtsUnchanged?: true;
@@ -264,7 +250,6 @@ namespace ts {
             modifyFs,
             modifyAgainFs,
             additionalSourceFiles,
-            expectedBuildInfoFilesForSectionBaselines,
             dependOrdered,
             ignoreDtsChanged,
             ignoreDtsUnchanged,
@@ -286,9 +271,7 @@ namespace ts {
                 tick,
                 proj: "outfile-concat",
                 rootNames: ["/src/third"],
-                expectedMapFileNames,
-                expectedBuildInfoFilesForSectionBaselines: expectedBuildInfoFilesForSectionBaselines || expectedTsbuildInfoFileNames,
-                lastProjectOutputJs: outputFiles[project.third][ext.js],
+                baselineSourceMap: true,
                 initialBuild: {
                     modifyFs,
                     expectedDiagnostics: initialExpectedDiagnostics,
@@ -311,7 +294,6 @@ namespace ts {
                     expectedDiagnostics: dtsUnchanged && dtsUnchanged.expectedDiagnostics,
                     expectedReadFiles: dtsUnchanged && dtsUnchanged.expectedReadFiles
                 } : undefined,
-                outputFiles: expectedOutputFiles,
                 baselineOnly
             });
         }
@@ -344,11 +326,6 @@ namespace ts {
             scenario: "when final project specifies tsBuildInfoFile",
             modifyFs: fs => replaceText(fs, sources[project.third][source.config], `"composite": true,`, `"composite": true,
         "tsBuildInfoFile": "./thirdjs/output/third.tsbuildinfo",`),
-            expectedBuildInfoFilesForSectionBaselines: [
-                expectedTsbuildInfoFileNames[0],
-                expectedTsbuildInfoFileNames[1],
-                ["/src/third/thirdjs/output/third.tsbuildinfo", expectedTsbuildInfoFileNames[2][1], expectedTsbuildInfoFileNames[2][2]]
-            ],
             ignoreDtsChanged: true,
             ignoreDtsUnchanged: true,
             baselineOnly: true
@@ -363,21 +340,17 @@ namespace ts {
             ];
             const host = new fakes.SolutionBuilderHost(fs);
             const builder = createSolutionBuilder(host);
-            builder.buildAllProjects();
+            builder.build();
             host.assertDiagnosticMessages(...initialExpectedDiagnostics);
             // Verify they exist
-            for (const output of expectedOutputs) {
-                assert(fs.existsSync(output), `Expect file ${output} to exist`);
-            }
+            verifyOutputsPresent(fs, expectedOutputs);
             host.clearDiagnostics();
-            builder.cleanAllProjects();
+            builder.clean();
             host.assertDiagnosticMessages(/*none*/);
             // Verify they are gone
-            for (const output of expectedOutputs) {
-                assert(!fs.existsSync(output), `Expect file ${output} to not exist`);
-            }
+            verifyOutputsAbsent(fs, expectedOutputs);
             // Subsequent clean shouldn't throw / etc
-            builder.cleanAllProjects();
+            builder.clean();
         });
 
         it("verify buildInfo absence results in new build", () => {
@@ -388,18 +361,16 @@ namespace ts {
                 ...outputFiles[project.third]
             ];
             const host = new fakes.SolutionBuilderHost(fs);
-            const builder = createSolutionBuilder(host);
-            builder.buildAllProjects();
+            let builder = createSolutionBuilder(host);
+            builder.build();
             host.assertDiagnosticMessages(...initialExpectedDiagnostics);
             // Verify they exist
-            for (const output of expectedOutputs) {
-                assert(fs.existsSync(output), `Expect file ${output} to exist`);
-            }
+            verifyOutputsPresent(fs, expectedOutputs);
             // Delete bundle info
             host.clearDiagnostics();
             host.deleteFile(outputFiles[project.first][ext.buildinfo]);
-            builder.resetBuildContext();
-            builder.buildAllProjects();
+            builder = createSolutionBuilder(host);
+            builder.build();
             host.assertDiagnosticMessages(
                 getExpectedDiagnosticForProjectsInBuild(relSources[project.first][source.config], relSources[project.second][source.config], relSources[project.third][source.config]),
                 [Diagnostics.Project_0_is_out_of_date_because_output_file_1_does_not_exist, relSources[project.first][source.config], relOutputFiles[project.first][ext.buildinfo]],
@@ -416,25 +387,23 @@ namespace ts {
             const host = new fakes.SolutionBuilderHost(fs);
             replaceText(fs, sources[project.third][source.config], `"composite": true,`, "");
             const builder = createSolutionBuilder(host);
-            builder.buildAllProjects();
+            builder.build();
             host.assertDiagnosticMessages(...initialExpectedDiagnostics);
             // Verify they exist - without tsbuildinfo for third project
-            for (const output of expectedOutputFiles.slice(0, expectedOutputFiles.length - 2)) {
-                assert(fs.existsSync(output), `Expect file ${output} to exist`);
-            }
-            assert.isFalse(fs.existsSync(outputFiles[project.third][ext.buildinfo]), `Expect file ${outputFiles[project.third][ext.buildinfo]} to not exist`);
+            verifyOutputsPresent(fs, expectedOutputFiles.slice(0, expectedOutputFiles.length - 2));
+            verifyOutputsAbsent(fs, [outputFiles[project.third][ext.buildinfo]]);
         });
 
         it("rebuilds completely when version in tsbuildinfo doesnt match ts version", () => {
             const fs = outFileFs.shadow();
             const host = new fakes.SolutionBuilderHost(fs);
-            const builder = createSolutionBuilder(host);
-            builder.buildAllProjects();
+            let builder = createSolutionBuilder(host);
+            builder.build();
             host.assertDiagnosticMessages(...initialExpectedDiagnostics);
             host.clearDiagnostics();
-            builder.resetBuildContext();
+            builder = createSolutionBuilder(host);
             changeCompilerVersion(host);
-            builder.buildAllProjects();
+            builder.build();
             host.assertDiagnosticMessages(
                 getExpectedDiagnosticForProjectsInBuild(relSources[project.first][source.config], relSources[project.second][source.config], relSources[project.third][source.config]),
                 [Diagnostics.Project_0_is_out_of_date_because_output_for_it_was_generated_with_version_1_that_differs_with_current_version_2, relSources[project.first][source.config], fakes.version, version],
@@ -453,16 +422,16 @@ namespace ts {
 
             // Build with command line incremental
             const host = new fakes.SolutionBuilderHost(fs);
-            const builder = createSolutionBuilder(host, { incremental: true });
-            builder.buildAllProjects();
+            let builder = createSolutionBuilder(host, { incremental: true });
+            builder.build();
             host.assertDiagnosticMessages(...initialExpectedDiagnostics);
             host.clearDiagnostics();
             tick();
 
             // Make non incremental build with change in file that doesnt affect dts
             appendText(fs, relSources[project.first][source.ts][part.one], "console.log(s);");
-            builder.resetBuildContext({ verbose: true });
-            builder.buildAllProjects();
+            builder = createSolutionBuilder(host, { verbose: true });
+            builder.build();
             host.assertDiagnosticMessages(getExpectedDiagnosticForProjectsInBuild(relSources[project.first][source.config], relSources[project.second][source.config], relSources[project.third][source.config]),
                 [Diagnostics.Project_0_is_out_of_date_because_oldest_output_1_is_older_than_newest_input_2, relSources[project.first][source.config], relOutputFiles[project.first][ext.js], relSources[project.first][source.ts][part.one]],
                 [Diagnostics.Building_project_0, sources[project.first][source.config]],
@@ -475,8 +444,8 @@ namespace ts {
 
             // Make incremental build with change in file that doesnt affect dts
             appendText(fs, relSources[project.first][source.ts][part.one], "console.log(s);");
-            builder.resetBuildContext({ verbose: true, incremental: true });
-            builder.buildAllProjects();
+            builder = createSolutionBuilder(host, { verbose: true, incremental: true });
+            builder.build();
             // Builds completely because tsbuildinfo is old.
             host.assertDiagnosticMessages(
                 getExpectedDiagnosticForProjectsInBuild(relSources[project.first][source.config], relSources[project.second][source.config], relSources[project.third][source.config]),
@@ -487,6 +456,33 @@ namespace ts {
                 [Diagnostics.Building_project_0, sources[project.third][source.config]]
             );
             host.clearDiagnostics();
+        });
+
+        it("builds till project specified", () => {
+            const fs = outFileFs.shadow();
+            const host = new fakes.SolutionBuilderHost(fs);
+            const builder = createSolutionBuilder(host, { verbose: false });
+            const result = builder.build(sources[project.second][source.config]);
+            host.assertDiagnosticMessages(/*empty*/);
+            // First and Third is not built
+            verifyOutputsAbsent(fs, [...outputFiles[project.first], ...outputFiles[project.third]]);
+            // second is built
+            verifyOutputsPresent(fs, outputFiles[project.second]);
+            assert.equal(result, ExitStatus.Success);
+        });
+
+        it("cleans till project specified", () => {
+            const fs = outFileFs.shadow();
+            const host = new fakes.SolutionBuilderHost(fs);
+            const builder = createSolutionBuilder(host, { verbose: false });
+            builder.build();
+            const result = builder.clean(sources[project.second][source.config]);
+            host.assertDiagnosticMessages(/*empty*/);
+            // First and Third output for present
+            verifyOutputsPresent(fs, [...outputFiles[project.first], ...outputFiles[project.third]]);
+            // second is cleaned
+            verifyOutputsAbsent(fs, outputFiles[project.second]);
+            assert.equal(result, ExitStatus.Success);
         });
 
         describe("Prepend output with .tsbuildinfo", () => {
@@ -904,7 +900,7 @@ ${internal} enum internalEnum { a, b, c }`);
 
             const host = new fakes.SolutionBuilderHost(fs);
             const builder = createSolutionBuilder(host);
-            builder.buildAllProjects();
+            builder.build();
             host.assertDiagnosticMessages(
                 getExpectedDiagnosticForProjectsInBuild(relSources[project.first][source.config], relSources[project.second][source.config], relSources[project.third][source.config]),
                 [Diagnostics.Project_0_is_out_of_date_because_output_file_1_does_not_exist, relSources[project.first][source.config], "src/first/first_PART1.js"],
@@ -923,9 +919,7 @@ ${internal} enum internalEnum { a, b, c }`);
                     removeFileExtension(f) + Extension.Dts + ".map",
                 ])
             ]);
-            for (const output of expectedOutputFiles) {
-                assert(fs.existsSync(output), `Expect file ${output} to exist`);
-            }
+            verifyOutputsPresent(fs, expectedOutputFiles);
         });
     });
 }

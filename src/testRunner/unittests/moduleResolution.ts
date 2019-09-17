@@ -170,7 +170,7 @@ namespace ts {
             testTypingsIgnored(["a", "b"]);
             testTypingsIgnored({ a: "b" });
             testTypingsIgnored(/*typings*/ true);
-            testTypingsIgnored(/*typings*/ null); // tslint:disable-line no-null-keyword
+            testTypingsIgnored(/*typings*/ null); // eslint-disable-line no-null/no-null
             testTypingsIgnored(/*typings*/ undefined);
         });
         it("module name as directory - load index.d.ts", () => {
@@ -530,7 +530,7 @@ export = C;
         });
     });
 
-    describe("unittests:: moduleResolution:: Files with different casing", () => {
+    describe("unittests:: moduleResolution:: Files with different casing with forceConsistentCasingInFileNames", () => {
         let library: SourceFile;
         function test(files: Map<string>, options: CompilerOptions, currentDirectory: string, useCaseSensitiveFileNames: boolean, rootFiles: string[], diagnosticCodes: number[]): void {
             const getCanonicalFileName = createGetCanonicalFileName(useCaseSensitiveFileNames);
@@ -648,6 +648,22 @@ import b = require("./moduleB");
                 `
             });
             test(files, { module: ModuleKind.CommonJS, forceConsistentCasingInFileNames: true }, "/a/B/c", /*useCaseSensitiveFileNames*/ false, ["moduleD.ts"], []);
+        });
+
+        it("should succeed when the two files in program differ only in drive letter in their names", () => {
+            const files = createMapFromTemplate({
+                "d:/someFolder/moduleA.ts": `import a = require("D:/someFolder/moduleC")`,
+                "d:/someFolder/moduleB.ts": `import a = require("./moduleC")`,
+                "D:/someFolder/moduleC.ts": "export const x = 10",
+            });
+            test(
+                files,
+                { module: ModuleKind.CommonJS, forceConsistentCasingInFileNames: true },
+                "d:/someFolder",
+                /*useCaseSensitiveFileNames*/ false,
+                ["d:/someFolder/moduleA.ts", "d:/someFolder/moduleB.ts"],
+                []
+            );
         });
     });
 
@@ -950,7 +966,7 @@ import b = require("./moduleB");
 
             function test(hasDirectoryExists: boolean) {
                 const file1: File = { name: "/root/folder1/file1.ts" };
-                const file1_1: File = { name: "/root/folder1/file1_1/index.d.ts" }; // tslint:disable-line variable-name
+                const file1_1: File = { name: "/root/folder1/file1_1/index.d.ts" }; // eslint-disable-line @typescript-eslint/camelcase
                 const file2: File = { name: "/root/generated/folder1/file2.ts" };
                 const file3: File = { name: "/root/generated/folder2/file3.ts" };
                 const host = createModuleResolutionHost(hasDirectoryExists, file1, file1_1, file2, file3);
@@ -1086,7 +1102,7 @@ import b = require("./moduleB");
                     paths: {
                         "libs/guid": [ "src/libs/guid" ]
                     }
-                 };
+                };
                 const result = resolveModuleName("libs/guid", app.name, options, host);
                 checkResolvedModuleWithFailedLookupLocations(result, createResolvedModule(libsTypings.name), [
                     // first try to load module as file

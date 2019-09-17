@@ -1,5 +1,7 @@
+/* eslint-disable prefer-const */
 let runners: RunnerBase[] = [];
 let iterations = 1;
+/* eslint-enable prefer-const */
 
 function runTests(runners: RunnerBase[]) {
     for (let i = iterations; i > 0; i--) {
@@ -40,6 +42,8 @@ function createRunner(kind: TestRunnerKind): RunnerBase {
             return new UserCodeRunner();
         case "dt":
             return new DefinitelyTypedRunner();
+        case "docker":
+            return new DockerfileRunner();
     }
     return ts.Debug.fail(`Unknown runner kind ${kind}`);
 }
@@ -50,7 +54,7 @@ const mytestconfigFileName = "mytest.config";
 const testconfigFileName = "test.config";
 
 const customConfig = tryGetConfig(Harness.IO.args());
-let testConfigContent =
+const testConfigContent =
     customConfig && Harness.IO.fileExists(customConfig)
         ? Harness.IO.readFile(customConfig)!
         : Harness.IO.fileExists(mytestconfigFileName)
@@ -63,6 +67,7 @@ let runUnitTests: boolean | undefined;
 let stackTraceLimit: number | "full" | undefined;
 let noColors = false;
 let keepFailed = false;
+let skipPercent = 5;
 
 interface TestConfig {
     light?: boolean;
@@ -76,6 +81,9 @@ interface TestConfig {
     noColors?: boolean;
     timeout?: number;
     keepFailed?: boolean;
+    skipPercent?: number;
+    shardId?: number;
+    shards?: number;
 }
 
 interface TaskSet {
@@ -107,6 +115,15 @@ function handleTestConfig() {
         if (testConfig.keepFailed) {
             keepFailed = true;
         }
+        if (testConfig.skipPercent !== undefined) {
+            skipPercent = testConfig.skipPercent;
+        }
+        if (testConfig.shardId) {
+            shardId = testConfig.shardId;
+        }
+        if (testConfig.shards) {
+            shards = testConfig.shards;
+        }
 
         if (testConfig.stackTraceLimit === "full") {
             (<any>Error).stackTraceLimit = Infinity;
@@ -122,6 +139,9 @@ function handleTestConfig() {
 
         const runnerConfig = testConfig.runners || testConfig.test;
         if (runnerConfig && runnerConfig.length > 0) {
+            if (testConfig.runners) {
+                runUnitTests = runnerConfig.indexOf("unittest") !== -1;
+            }
             for (const option of runnerConfig) {
                 if (!option) {
                     continue;
@@ -172,6 +192,9 @@ function handleTestConfig() {
                     case "dt":
                         runners.push(new DefinitelyTypedRunner());
                         break;
+                    case "docker":
+                        runners.push(new DockerfileRunner());
+                        break;
                 }
             }
         }
@@ -194,6 +217,7 @@ function handleTestConfig() {
         // CRON-only tests
         if (process.env.TRAVIS_EVENT_TYPE === "cron") {
             runners.push(new UserCodeRunner());
+            runners.push(new DockerfileRunner());
         }
     }
     if (runUnitTests === undefined) {

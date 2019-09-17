@@ -141,11 +141,8 @@ namespace ts {
     export function visitLexicalEnvironment(statements: NodeArray<Statement>, visitor: Visitor, context: TransformationContext, start?: number, ensureUseStrict?: boolean) {
         context.startLexicalEnvironment();
         statements = visitNodes(statements, visitor, isStatement, start);
-        if (ensureUseStrict && !startsWithUseStrict(statements)) {
-            statements = setTextRange(createNodeArray([createExpressionStatement(createLiteral("use strict")), ...statements]), statements);
-        }
-        const declarations = context.endLexicalEnvironment();
-        return setTextRange(createNodeArray(concatenate(declarations, statements)), statements);
+        if (ensureUseStrict) statements = ts.ensureUseStrict(statements); // eslint-disable-line @typescript-eslint/no-unnecessary-qualifier
+        return mergeLexicalEnvironment(statements, context.endLexicalEnvironment());
     }
 
     /**
@@ -232,7 +229,6 @@ namespace ts {
                     visitNode((<ComputedPropertyName>node).expression, visitor, isExpression));
 
             // Signature elements
-
             case SyntaxKind.TypeParameter:
                 return updateTypeParameterDeclaration(<TypeParameterDeclaration>node,
                     visitNode((<TypeParameterDeclaration>node).name, visitor, isIdentifier),
@@ -254,7 +250,6 @@ namespace ts {
                     visitNode((<Decorator>node).expression, visitor, isExpression));
 
             // Type elements
-
             case SyntaxKind.PropertySignature:
                 return updatePropertySignature((<PropertySignature>node),
                     nodesVisitor((<PropertySignature>node).modifiers, visitor, isToken),
@@ -268,7 +263,8 @@ namespace ts {
                     nodesVisitor((<PropertyDeclaration>node).decorators, visitor, isDecorator),
                     nodesVisitor((<PropertyDeclaration>node).modifiers, visitor, isModifier),
                     visitNode((<PropertyDeclaration>node).name, visitor, isPropertyName),
-                    visitNode((<PropertyDeclaration>node).questionToken, tokenVisitor, isToken),
+                    // QuestionToken and ExclamationToken is uniqued in Property Declaration and the signature of 'updateProperty' is that too
+                    visitNode((<PropertyDeclaration>node).questionToken || (<PropertyDeclaration>node).exclamationToken, tokenVisitor, isToken),
                     visitNode((<PropertyDeclaration>node).type, visitor, isTypeNode),
                     visitNode((<PropertyDeclaration>node).initializer, visitor, isExpression));
 
@@ -333,10 +329,9 @@ namespace ts {
                     nodesVisitor((<IndexSignatureDeclaration>node).decorators, visitor, isDecorator),
                     nodesVisitor((<IndexSignatureDeclaration>node).modifiers, visitor, isModifier),
                     nodesVisitor((<IndexSignatureDeclaration>node).parameters, visitor, isParameterDeclaration),
-                    visitNode((<IndexSignatureDeclaration>node).type!, visitor, isTypeNode));
+                    visitNode((<IndexSignatureDeclaration>node).type, visitor, isTypeNode));
 
             // Types
-
             case SyntaxKind.TypePredicate:
                 return updateTypePredicateNode(<TypePredicateNode>node,
                     visitNode((<TypePredicateNode>node).parameterName, visitor),
@@ -435,7 +430,6 @@ namespace ts {
                     visitNode((<LiteralTypeNode>node).literal, visitor, isExpression));
 
             // Binding patterns
-
             case SyntaxKind.ObjectBindingPattern:
                 return updateObjectBindingPattern(<ObjectBindingPattern>node,
                     nodesVisitor((<ObjectBindingPattern>node).elements, visitor, isBindingElement));
@@ -452,7 +446,6 @@ namespace ts {
                     visitNode((<BindingElement>node).initializer, visitor, isExpression));
 
             // Expression
-
             case SyntaxKind.ArrayLiteralExpression:
                 return updateArrayLiteral(<ArrayLiteralExpression>node,
                     nodesVisitor((<ArrayLiteralExpression>node).elements, visitor, isExpression));
@@ -563,7 +556,7 @@ namespace ts {
             case SyntaxKind.YieldExpression:
                 return updateYield(<YieldExpression>node,
                     visitNode((<YieldExpression>node).asteriskToken, tokenVisitor, isToken),
-                    visitNode((<YieldExpression>node).expression!, visitor, isExpression));
+                    visitNode((<YieldExpression>node).expression, visitor, isExpression));
 
             case SyntaxKind.SpreadElement:
                 return updateSpread(<SpreadElement>node,
@@ -596,14 +589,12 @@ namespace ts {
                     visitNode((<MetaProperty>node).name, visitor, isIdentifier));
 
             // Misc
-
             case SyntaxKind.TemplateSpan:
                 return updateTemplateSpan(<TemplateSpan>node,
                     visitNode((<TemplateSpan>node).expression, visitor, isExpression),
                     visitNode((<TemplateSpan>node).literal, visitor, isTemplateMiddleOrTemplateTail));
 
             // Element
-
             case SyntaxKind.Block:
                 return updateBlock(<Block>node,
                     nodesVisitor((<Block>node).statements, visitor, isStatement));
@@ -682,7 +673,7 @@ namespace ts {
 
             case SyntaxKind.ThrowStatement:
                 return updateThrow(<ThrowStatement>node,
-                    visitNode((<ThrowStatement>node).expression!, visitor, isExpression));
+                    visitNode((<ThrowStatement>node).expression, visitor, isExpression));
 
             case SyntaxKind.TryStatement:
                 return updateTry(<TryStatement>node,
@@ -818,13 +809,11 @@ namespace ts {
                     visitNode((<ExportSpecifier>node).name, visitor, isIdentifier));
 
             // Module references
-
             case SyntaxKind.ExternalModuleReference:
                 return updateExternalModuleReference(<ExternalModuleReference>node,
                     visitNode((<ExternalModuleReference>node).expression, visitor, isExpression));
 
             // JSX
-
             case SyntaxKind.JsxElement:
                 return updateJsxElement(<JsxElement>node,
                     visitNode((<JsxElement>node).openingElement, visitor, isJsxOpeningElement),
@@ -856,7 +845,7 @@ namespace ts {
             case SyntaxKind.JsxAttribute:
                 return updateJsxAttribute(<JsxAttribute>node,
                     visitNode((<JsxAttribute>node).name, visitor, isIdentifier),
-                    visitNode((<JsxAttribute>node).initializer!, visitor, isStringLiteralOrJsxExpression));
+                    visitNode((<JsxAttribute>node).initializer, visitor, isStringLiteralOrJsxExpression));
 
             case SyntaxKind.JsxAttributes:
                 return updateJsxAttributes(<JsxAttributes>node,
@@ -871,7 +860,6 @@ namespace ts {
                     visitNode((<JsxExpression>node).expression, visitor, isExpression));
 
             // Clauses
-
             case SyntaxKind.CaseClause:
                 return updateCaseClause(<CaseClause>node,
                     visitNode((<CaseClause>node).expression, visitor, isExpression),
@@ -891,7 +879,6 @@ namespace ts {
                     visitNode((<CatchClause>node).block, visitor, isBlock));
 
             // Property assignments
-
             case SyntaxKind.PropertyAssignment:
                 return updatePropertyAssignment(<PropertyAssignment>node,
                     visitNode((<PropertyAssignment>node).name, visitor, isPropertyName),
@@ -938,7 +925,7 @@ namespace ts {
      *
      * @param nodes The NodeArray.
      */
-    function extractSingleNode(nodes: ReadonlyArray<Node>): Node | undefined {
+    function extractSingleNode(nodes: readonly Node[]): Node | undefined {
         Debug.assert(nodes.length <= 1, "Too many nodes written to output.");
         return singleOrUndefined(nodes);
     }
@@ -1016,7 +1003,6 @@ namespace ts {
                 break;
 
             // Type member
-
             case SyntaxKind.PropertySignature:
                 result = reduceNodes((<PropertySignature>node).modifiers, cbNodes, result);
                 result = reduceNode((<PropertySignature>node).name, cbNode, result);
@@ -1466,13 +1452,13 @@ namespace ts {
     /**
      * Merges generated lexical declarations into a new statement list.
      */
-    export function mergeLexicalEnvironment(statements: NodeArray<Statement>, declarations: ReadonlyArray<Statement> | undefined): NodeArray<Statement>;
+    export function mergeLexicalEnvironment(statements: NodeArray<Statement>, declarations: readonly Statement[] | undefined): NodeArray<Statement>;
 
     /**
      * Appends generated lexical declarations to an array of statements.
      */
-    export function mergeLexicalEnvironment(statements: Statement[], declarations: ReadonlyArray<Statement> | undefined): Statement[];
-    export function mergeLexicalEnvironment(statements: Statement[] | NodeArray<Statement>, declarations: ReadonlyArray<Statement> | undefined) {
+    export function mergeLexicalEnvironment(statements: Statement[], declarations: readonly Statement[] | undefined): Statement[];
+    export function mergeLexicalEnvironment(statements: Statement[] | NodeArray<Statement>, declarations: readonly Statement[] | undefined) {
         if (!some(declarations)) {
             return statements;
         }
@@ -1487,7 +1473,7 @@ namespace ts {
      *
      * @param nodes The NodeArray.
      */
-    export function liftToBlock(nodes: ReadonlyArray<Node>): Statement {
+    export function liftToBlock(nodes: readonly Node[]): Statement {
         Debug.assert(every(nodes, isStatement), "Cannot lift nodes to a Block.");
         return <Statement>singleOrUndefined(nodes) || createBlock(<NodeArray<Statement>>nodes);
     }
@@ -1556,101 +1542,5 @@ namespace ts {
 
     function aggregateTransformFlagsForChildNodes(transformFlags: TransformFlags, nodes: NodeArray<Node>): TransformFlags {
         return transformFlags | aggregateTransformFlagsForNodeArray(nodes);
-    }
-
-    export namespace Debug {
-        let isDebugInfoEnabled = false;
-
-        export function failBadSyntaxKind(node: Node, message?: string): never {
-            return fail(
-                `${message || "Unexpected node."}\r\nNode ${formatSyntaxKind(node.kind)} was unexpected.`,
-                failBadSyntaxKind);
-        }
-
-        export const assertEachNode = shouldAssert(AssertionLevel.Normal)
-            ? (nodes: Node[], test: (node: Node) => boolean, message?: string): void => assert(
-                test === undefined || every(nodes, test),
-                message || "Unexpected node.",
-                () => `Node array did not pass test '${getFunctionName(test)}'.`,
-                assertEachNode)
-            : noop;
-
-        export const assertNode = shouldAssert(AssertionLevel.Normal)
-            ? (node: Node | undefined, test: ((node: Node | undefined) => boolean) | undefined, message?: string): void => assert(
-                test === undefined || test(node),
-                message || "Unexpected node.",
-                () => `Node ${formatSyntaxKind(node!.kind)} did not pass test '${getFunctionName(test!)}'.`,
-                assertNode)
-            : noop;
-
-        export const assertOptionalNode = shouldAssert(AssertionLevel.Normal)
-            ? (node: Node, test: (node: Node) => boolean, message?: string): void => assert(
-                test === undefined || node === undefined || test(node),
-                message || "Unexpected node.",
-                () => `Node ${formatSyntaxKind(node.kind)} did not pass test '${getFunctionName(test)}'.`,
-                assertOptionalNode)
-            : noop;
-
-        export const assertOptionalToken = shouldAssert(AssertionLevel.Normal)
-            ? (node: Node, kind: SyntaxKind, message?: string): void => assert(
-                kind === undefined || node === undefined || node.kind === kind,
-                message || "Unexpected node.",
-                () => `Node ${formatSyntaxKind(node.kind)} was not a '${formatSyntaxKind(kind)}' token.`,
-                assertOptionalToken)
-            : noop;
-
-        export const assertMissingNode = shouldAssert(AssertionLevel.Normal)
-            ? (node: Node, message?: string): void => assert(
-                node === undefined,
-                message || "Unexpected node.",
-                () => `Node ${formatSyntaxKind(node.kind)} was unexpected'.`,
-                assertMissingNode)
-            : noop;
-
-        /**
-         * Injects debug information into frequently used types.
-         */
-        export function enableDebugInfo() {
-            if (isDebugInfoEnabled) return;
-
-            // Add additional properties in debug mode to assist with debugging.
-            Object.defineProperties(objectAllocator.getSymbolConstructor().prototype, {
-                __debugFlags: { get(this: Symbol) { return formatSymbolFlags(this.flags); } }
-            });
-
-            Object.defineProperties(objectAllocator.getTypeConstructor().prototype, {
-                __debugFlags: { get(this: Type) { return formatTypeFlags(this.flags); } },
-                __debugObjectFlags: { get(this: Type) { return this.flags & TypeFlags.Object ? formatObjectFlags((<ObjectType>this).objectFlags) : ""; } },
-                __debugTypeToString: { value(this: Type) { return this.checker.typeToString(this); } },
-            });
-
-            const nodeConstructors = [
-                objectAllocator.getNodeConstructor(),
-                objectAllocator.getIdentifierConstructor(),
-                objectAllocator.getTokenConstructor(),
-                objectAllocator.getSourceFileConstructor()
-            ];
-
-            for (const ctor of nodeConstructors) {
-                if (!ctor.prototype.hasOwnProperty("__debugKind")) {
-                    Object.defineProperties(ctor.prototype, {
-                        __debugKind: { get(this: Node) { return formatSyntaxKind(this.kind); } },
-                        __debugModifierFlags: { get(this: Node) { return formatModifierFlags(getModifierFlagsNoCache(this)); } },
-                        __debugTransformFlags: { get(this: Node) { return formatTransformFlags(this.transformFlags); } },
-                        __debugEmitFlags: { get(this: Node) { return formatEmitFlags(getEmitFlags(this)); } },
-                        __debugGetText: {
-                            value(this: Node, includeTrivia?: boolean) {
-                                if (nodeIsSynthesized(this)) return "";
-                                const parseNode = getParseTreeNode(this);
-                                const sourceFile = parseNode && getSourceFileOfNode(parseNode);
-                                return sourceFile ? getSourceTextOfNodeFromSourceFile(sourceFile, parseNode, includeTrivia) : "";
-                            }
-                        }
-                    });
-                }
-            }
-
-            isDebugInfoEnabled = true;
-        }
     }
 }

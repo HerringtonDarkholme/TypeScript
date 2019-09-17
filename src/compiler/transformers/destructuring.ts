@@ -514,6 +514,7 @@ namespace ts {
 
     export const restHelper: UnscopedEmitHelper = {
         name: "typescript:rest",
+        importName: "__rest",
         scoped: false,
         text: `
             var __rest = (this && this.__rest) || function (s, e) {
@@ -521,8 +522,10 @@ namespace ts {
                 for (var p in s) if (Object.prototype.hasOwnProperty.call(s, p) && e.indexOf(p) < 0)
                     t[p] = s[p];
                 if (s != null && typeof Object.getOwnPropertySymbols === "function")
-                    for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) if (e.indexOf(p[i]) < 0)
-                        t[p[i]] = s[p[i]];
+                    for (var i = 0, p = Object.getOwnPropertySymbols(s); i < p.length; i++) {
+                        if (e.indexOf(p[i]) < 0 && Object.prototype.propertyIsEnumerable.call(s, p[i]))
+                            t[p[i]] = s[p[i]];
+                    }
                 return t;
             };`
     };
@@ -530,7 +533,7 @@ namespace ts {
     /** Given value: o, propName: p, pattern: { a, b, ...p } from the original statement
      * `{ a, b, ...p } = o`, create `p = __rest(o, ["a", "b"]);`
      */
-    function createRestCall(context: TransformationContext, value: Expression, elements: ReadonlyArray<BindingOrAssignmentElement>, computedTempVariables: ReadonlyArray<Expression>, location: TextRange): Expression {
+    function createRestCall(context: TransformationContext, value: Expression, elements: readonly BindingOrAssignmentElement[], computedTempVariables: readonly Expression[], location: TextRange): Expression {
         context.requestEmitHelper(restHelper);
         const propertyNames: Expression[] = [];
         let computedTempVariableOffset = 0;
@@ -555,7 +558,7 @@ namespace ts {
             }
         }
         return createCall(
-            getHelperName("__rest"),
+            getUnscopedHelperName("__rest"),
             /*typeArguments*/ undefined,
             [
                 value,

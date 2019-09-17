@@ -297,10 +297,10 @@ sourceFile:file4.ts
 //// [/src/app/module.tsbuildinfo]
 {
   "bundle": {
-    "commonSourceDirectory": "/src/app/",
+    "commonSourceDirectory": "./",
     "sourceFiles": [
-      "/src/app/file3.ts",
-      "/src/app/file4.ts"
+      "./file3.ts",
+      "./file4.ts"
     ],
     "js": {
       "sections": [
@@ -308,7 +308,7 @@ sourceFile:file4.ts
           "pos": 0,
           "end": 513,
           "kind": "prepend",
-          "data": "/src/lib/module.js",
+          "data": "../lib/module.js",
           "texts": [
             {
               "pos": 0,
@@ -342,7 +342,7 @@ sourceFile:file4.ts
           "pos": 89,
           "end": 297,
           "kind": "prepend",
-          "data": "/src/lib/module.d.ts",
+          "data": "../lib/module.d.ts",
           "texts": [
             {
               "pos": 89,
@@ -366,7 +366,7 @@ sourceFile:file4.ts
 ======================================================================
 File:: /src/app/module.js
 ----------------------------------------------------------------------
-prepend: (0-513):: /src/lib/module.js texts:: 1
+prepend: (0-513):: ../lib/module.js texts:: 1
 >>--------------------------------------------------------------------
 text: (0-513)
 ///<reference path="./tripleRef.d.ts"/>
@@ -406,7 +406,7 @@ reference: (0-39):: tripleRef.d.ts
 reference: (41-87):: ../lib/tripleRef.d.ts
 /// <reference path="../lib/tripleRef.d.ts" />
 ----------------------------------------------------------------------
-prepend: (89-297):: /src/lib/module.d.ts texts:: 1
+prepend: (89-297):: ../lib/module.d.ts texts:: 1
 >>--------------------------------------------------------------------
 text: (89-297)
 declare const file0Const: libfile0;
@@ -432,6 +432,9 @@ declare const myVar = 30;
 //// [/src/lib/file1.ts]
 export const x = 10;console.log(x);
 
+//// [/src/lib/module.d.ts] file written with same contents
+//// [/src/lib/module.d.ts.map] file written with same contents
+//// [/src/lib/module.d.ts.map.baseline.txt] file written with same contents
 //// [/src/lib/module.js]
 ///<reference path="./tripleRef.d.ts"/>
 var file0Const = new libfile0();
@@ -634,12 +637,12 @@ sourceFile:global.ts
 //// [/src/lib/module.tsbuildinfo]
 {
   "bundle": {
-    "commonSourceDirectory": "/src/lib/",
+    "commonSourceDirectory": "./",
     "sourceFiles": [
-      "/src/lib/file0.ts",
-      "/src/lib/file1.ts",
-      "/src/lib/file2.ts",
-      "/src/lib/global.ts"
+      "./file0.ts",
+      "./file1.ts",
+      "./file2.ts",
+      "./global.ts"
     ],
     "js": {
       "sections": [

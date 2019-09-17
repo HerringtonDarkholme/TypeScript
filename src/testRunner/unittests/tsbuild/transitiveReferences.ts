@@ -7,12 +7,12 @@ namespace ts {
             "/src/c.js"
         ];
         const expectedFileTraces = [
-            ...getLibs(),
+            "/lib/lib.d.ts",
             "/src/a.ts",
-            ...getLibs(),
+            "/lib/lib.d.ts",
             "/src/a.d.ts",
             "/src/b.ts",
-            ...getLibs(),
+            "/lib/lib.d.ts",
             "/src/a.d.ts",
             "/src/b.d.ts",
             "/src/refs/a.d.ts",
@@ -25,16 +25,14 @@ namespace ts {
             projFs = undefined!; // Release the contents
         });
 
-        function verifyBuild(modifyDiskLayout: (fs: vfs.FileSystem) => void, allExpectedOutputs: ReadonlyArray<string>, expectedFileTraces: ReadonlyArray<string>, ...expectedDiagnostics: fakes.ExpectedDiagnostic[]) {
+        function verifyBuild(modifyDiskLayout: (fs: vfs.FileSystem) => void, allExpectedOutputs: readonly string[], expectedFileTraces: readonly string[], ...expectedDiagnostics: fakes.ExpectedDiagnostic[]) {
             const fs = projFs.shadow();
             const host = new fakes.SolutionBuilderHost(fs);
             modifyDiskLayout(fs);
             const builder = createSolutionBuilder(host, ["/src/tsconfig.c.json"], { listFiles: true });
-            builder.buildAllProjects();
+            builder.build();
             host.assertDiagnosticMessages(...expectedDiagnostics);
-            for (const output of allExpectedOutputs) {
-                assert(fs.existsSync(output), `Expect file ${output} to exist`);
-            }
+            verifyOutputsPresent(fs, allExpectedOutputs);
             assert.deepEqual(host.traces, expectedFileTraces);
         }
 
@@ -63,15 +61,22 @@ export const b = new A();`);
             // Error in b build only a
             const allExpectedOutputs = ["/src/a.js", "/src/a.d.ts"];
             const expectedFileTraces = [
-                ...getLibs(),
+                "/lib/lib.d.ts",
                 "/src/a.ts",
-                ...getLibs(),
+                "/lib/lib.d.ts",
                 "/src/b.ts"
             ];
             verifyBuild(fs => modifyFsBTsToNonRelativeImport(fs, "node"),
                 allExpectedOutputs,
                 expectedFileTraces,
-                [Diagnostics.Cannot_find_module_0, "a"],
+                {
+                    message: [Diagnostics.Cannot_find_module_0, "a"],
+                    location: {
+                        file: "/src/b.ts",
+                        start: `import {A} from 'a';`.indexOf(`'a'`),
+                        length: `'a'`.length
+                    }
+                },
             );
         });
     });
